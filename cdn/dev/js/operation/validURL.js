@@ -1,4 +1,11 @@
-// Ensure a valid URL
+
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Check URL
+*/
 export function validateURL(string) {
     try {
         const newUrl = new URL(string)

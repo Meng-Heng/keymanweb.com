@@ -1,4 +1,11 @@
-import { setKeyboard } from "../operation/handleKeyboardData.js";
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Save and restore the enabled keyboard for rememberState
+*/
+import { setKeyboard } from "../operation/keyboardDataPackage.js";
 import { setKeyboardToType } from "../operation/keyboard.js";
 import { selectedKbList } from "./appState.js";
 

@@ -1,10 +1,17 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Remember the state of interactable elements
+ */
 import { storage } from "../state/storage.js"
 import { getFontSize, setFontSize } from "../state/fontState.js"
 import { getElementValue, setElementValue } from "../state/elementValue.js"
 import { getElementsSize, setElementsSize } from "../state/elementSize.js"
 import { getEnabledKb, setEnabledKb } from "../state/enableKb.js"
 import { getSelectedKb, setSelectedKb } from "../state/selectedKbList.js"
-import { generateKbUI } from "../feature/kb-selection-menu.js"
+import { kbContainerUI } from "../feature/kb-container.js"
 
 const textAreaContainer = document.querySelector('.textarea-container')
 const textArea = document.querySelector('#textArea')
@@ -29,7 +36,7 @@ export function loadSettings() {
     if(!state) return
     setElementsSize(textAreaContainer, state.textAreaSizes)
     setSelectedKb(state.selectedKbList)
-    generateKbUI(state.selectedKbList)
+    kbContainerUI(state.selectedKbList)
     setEnabledKb(state.enabledKb)
     setElementValue(textArea, state.writtenText)
     setFontSize(textArea, state.fontSize)

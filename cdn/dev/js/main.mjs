@@ -1,3 +1,11 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-05
+ * 
+ * This is the main base of every elements interacting with each other.
+*/
+
 // Tool imports
 import { eraserTool } from "./feature/eraser.js"
 import { copyTool } from "./feature/copy.js"
@@ -10,7 +18,7 @@ import { renderToolsTray } from "./feature/tool-tray.js"
 // Pagination-related imports
 import { searchState } from "./state/appState.js"
 import { goPrevPage, goNextPage, updatePaginationCtrl } from "./feature/pagination.js"
-import { getKeyboard, setKeyboard } from "./operation/handleKeyboardData.js"
+import { setKeyboard } from "./operation/keyboardDataPackage.js"
 import { handleSearch, defaultSearch } from "./operation/searchLogic.js"
 
 // Keyboard imports
@@ -35,7 +43,6 @@ const nextBtn = document.getElementById('nextPage')
 
 // Keyboard Selection Menu Components
 const keyboardSelectionButton = document.querySelector('#keyboardSelectionButton')
-const kbSelection = document.querySelector('#keyboardSelection')
 
 // Search Components
 const searchInput = document.querySelector('#searchInput')
@@ -64,14 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resizeGrip = document.querySelector('#resizeGrip')
     resizeGrip.addEventListener('mousedown', mouseDownGrabber)
 
-    // Mouse events on Keyboard Selection menu
-    keyboardSelectionButton.addEventListener('click', () => {
-        kbSelection.classList.toggle('open')
-    })
-    kbSelection.addEventListener('mouseleave', () => {
-        kbSelection.classList.remove('open')
-    })
-
     // Set keyboard & examples to load
     setKeyboardToType()
 
@@ -83,25 +82,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    // Click on search
-    searchInput.addEventListener('click', function(e) {
-        e.stopPropagation()
+    searchInput.addEventListener('focus', (e) => {
+        // Ensure that the search always has the English keyboard 
+        setKeyboard('basic_kbdus', 'en', 'US Basic')
+        setKeyboardToType()
+
         searchDropdown.show()
         searchInput.placeholder = 'Search for a keyboard...'
-        setKeyboard('basic_kbdus', 'en', 'US Basic') // Ensure that this keyboard is always selected
-        setKeyboardToType() // Set keyboard & examples to load
-        handleSearch(e.target.value) // Get Search Query
     })
 
-    // Input: Search and Display keyboards
-    searchInput.addEventListener('input', function(e) {
-        e.preventDefault()
-        setKeyboard('basic_kbdus', 'en', 'US Basic')
-        setKeyboardToType() // Ensure that no keyboard switching mid selecting a keyboard
-        const query = e.target.value
-        searchState.searchQuery = query // update query
-        searchState.currentPage = 1
-        handleSearch(query) // Get Search Query
+    searchInput.addEventListener('click', (e) => {
+        handleSearch(e)
+    })
+
+    searchInput.addEventListener('input', (e) => {
+        handleSearch(e)
     })
 
     // Click on clear if there's input
@@ -130,4 +125,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
+})
+
+import { showPopUpDialog } from "./feature/instruction.js"
+
+const instructionDialog = document.getElementById('instructionModalOverlay')
+const openInstructionBtn = document.getElementById('getStartedBtn')
+
+openInstructionBtn.addEventListener('click', () => {
+    showPopUpDialog(instructionDialog)
 })

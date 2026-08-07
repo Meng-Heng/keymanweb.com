@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Save and restore the rememberState data to localStorage
+*/
 const STORAGE_KEY = "keymanWebStorage"
 
 export const storage = {

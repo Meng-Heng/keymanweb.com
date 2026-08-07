@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * The entire data for KeymanWeb.com
+*/
 /*      Text area values
             - To resize
 */
@@ -17,11 +24,19 @@ export const keyboardResizing = {
     isResizing: false,
     startY: 0,
     startHeightTop: 0,
-    startHeightBottom: 0
+    startHeightBottom: 0,
+    startWidthBottom: 0,
+    
+    // Keyboard limits
+    minKeyboardHeight: window.innerHeight * 0.3,
+    maxKeyboardHeight: window.innerHeight * 0.5,
+
+    minKeyboardWidth: window.innerWidth * 0.6,
+    maxKeyboardWidth: window.innerWidth * 0.8
 }
 
 /*
-        Selected Keyboard Data
+        Current Selected Keyboard
         - To Enable keyboard for typing
         - Change the language example
         - Update the UI after the keyboard is generated
@@ -33,7 +48,7 @@ export const kbData = {
 }
 
 /* 
-        Main array for Keyboards Selection Menu:
+        selectedKbList[] is the main array for the Keyboard Container:
         - The interaction between search, kb selection menu...etc
         - The enabling of a keyboard for typing
         - Data = [
@@ -41,7 +56,6 @@ export const kbData = {
             "name": kb.name,
             "version": kb.version,
             "helpLink": kb.helpLink,
-            "platformSupport": kb.platformSupport,
             "totalDownloads": kb.match.totalDownloads,
             "sourcePath": kb.sourcePath,
             "supportedLanguage": kb.languages,

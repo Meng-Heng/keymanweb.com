@@ -1,55 +1,47 @@
-// Logic for Search
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Search logic behind the search input
+ */
 import { searchState } from "../state/appState.js";
 import { getKeyboardList } from "./searchAPI.js";
 import { updatePaginationCtrl } from "../feature/pagination.js";
 import { updateSearchIcon } from "../feature/search.js"
 import { displaySearch } from "../feature/search.js";
-import { loadPageInfo } from "../feature/pagination.js";
+import { getTotalPage } from "../feature/pagination.js";
 
-export async function handleSearch(value) {
-    let query = value
-    setQuery(query)
-    updateSearchIcon(query) 
+/* Search */
+const kbSearchCard = document.getElementById('kbSearchCardUI')
+let searchTimeout = null
+
+export async function handleSearch(rawQuery) {
+    let query = rawQuery.target.value
 
     // Check the query's character number 
-    if (!searchState.searchQuery || searchState.searchQuery.length < 2) {
+    if (!query || query.length < 2) {
         await defaultSearch()
         return
     }
 
-    loadPageInfo(searchState.searchQuery)
-    
-    await searchKeyboard(searchState.searchQuery, searchState.currentPage)
-}
+    updateSearchIcon(query)
 
-// Contain a value for searching
-export function setQuery(value = '') {
-    searchState.searchQuery = value
+    searchState.searchQuery = query // update query
     searchState.currentPage = 1
-}
 
-// Run the search with queries and current page
-export async function runSearch() {
-    const currentQuery = searchState.searchQuery
-    const currentPage = searchState.currentPage
+    clearTimeout(searchTimeout) 
     
-    const data = await getKeyboardList(`${encodeURIComponent(currentQuery)}&p=${currentPage}`)
+    searchTimeout = setTimeout(async () => {
+        await getTotalPage(query)
 
-    if (data.context) {
-        searchState.totalPage = data.context.totalPages || 1;
-        searchState.currentPage = data.context.pageNumber || 1;
-    } else {
-        searchState.totalPage = Math.ceil(data.keyboards.length / searchState.itemPerPage);
-    }
-
-    return data
+        searchKbWithQuery(query, searchState.currentPage)
+    }, 300)
 }
 
-/* Search */
-const kbSearchCard = document.getElementById('kbSearchCardUI')
 /* Display top downloads with search Instruction */
 export async function defaultSearch() {
-    kbSearchCard.innerHTML = `<span>Please wait. It's Loading...</span>` // Loading UI
+    kbSearchCard.innerHTML = `<span>The most popular keyboards are loading...</span>` // Loading UI
 
     let data = await getKeyboardList('p:popular') // Show top 10 most downloaded keyboards
 
@@ -66,8 +58,8 @@ export async function defaultSearch() {
 }
 
 /* Get query and return search */
-export async function searchKeyboard(query = null, page) {
-    kbSearchCard.innerHTML = `<div>Searching ${query}...</div>` // Loading UI
+export async function searchKbWithQuery(query = null, page) {
+    kbSearchCard.innerHTML = `<div>Searching for ${query}...</div>` // Loading UI
     kbSearchCard.style.display = 'block'
 
     let data = await getKeyboardList(`${encodeURIComponent(query)}&p=${page}`)

@@ -1,7 +1,15 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-05
+ * 
+ * element and interaction for the copy tool
+ */
 export function copyTool() {
     // Copy tool
     const copyDiv = document.querySelector('#copyTool')
     const copyBtn = copyDiv.children[0]
+    
     copyDiv?.addEventListener('click', async function() {
         let textToCopy = textArea.value.trim()
         

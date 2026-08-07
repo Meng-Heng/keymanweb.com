@@ -1,4 +1,10 @@
-// Logic of search query highlights
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Logic of the highlighted search query.
+ */
 
 // Highlight word searched
 export function getMarkedContext(query) {
@@ -99,7 +105,7 @@ export function truncateDesc(kb, matchField, marked) {
         toggleBtn.textContent = "Show more"
 
         toggleBtn.addEventListener('click', e => {
-            e.preventDefault()
+            e.stopPropagation()
             const isExpanded = toggleBtn.textContent == "Show more"
             kbDescHeading.innerHTML = !isExpanded ? shortText.replace(marked, (m) => m ? `<mark>${m}</mark>` : m) : firstPara
             if (matchField == 'description') {

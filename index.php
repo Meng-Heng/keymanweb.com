@@ -11,33 +11,26 @@ use Keyman\Site\Common\ImageRandomizer;
         <img src="<?php echo cdn('img/keymanweb-mini-logo-88.png') ?>" alt='KeymanWeb.com' title="KeymanWeb version <?= $VersionWithTag ?>"/>
         <!-- Language Dropdown Search -->
         <div class="form" id="searchBar">
-          <input type="text" class="form-control form-input" id="searchInput" dir="ltr" data-bs-auto-close="outside" placeholder="Search for a keyboard..." maxlength="30">
+          <input type="search" class="form-control form-input" id="searchInput" dir="ltr" data-bs-auto-close="outside" placeholder="Search for a keyboard..." maxlength="30">
           <span id="searchIcons">
             <i class="fa-solid fa-magnifying-glass" id="magnifyingGlassIcon"></i>
             <i id="clearSearchIcon">&times;</i>
           </span>
           <div class="dropdown-menu" id="searchDropdownMenu">
             <div class="top-row top-row-search">
-              <div class="search-instruction">
-                <div class="instruction-title">
-                  <i id="closeInstruction">-</i>
-                  <p>Instruction</p>
-                </div>
-                <div class="search-instruction-list">
-                  <ol>
-                    <li>Search for any Keyman keyboard</li>
-                    <li>Click on the name of the keyboard to enable and store it in the keyboard selection menu</li>
-                    <li>Now, Switch between keyboards and start typing.</li>
-                  </ol>
-                </div>
-              </div>
+              <div></div>
             </div>
             <div class="middle-row middle-row-search" >
-              <hr id="hrForKeyboard">
-              <p class="keyboard-title"></p>
-              <div id="kbSearchCardUI">
-                <!-- kmwHeader.js --> 
+             <div class="middle-row middle-row-search">
+              <div class="search-result-heading">
+                <hr>
+                <p class="keyboard-title"></p>
+                <hr>
               </div>
+              <div id="kbSearchCardUI">
+                <!-- Search cards injected here -->
+              </div>
+            </div>
             </div>
             <div class="bottom-row bottom-row-search" id="paginationControls">
               <!-- kmwHeader.js --> 
@@ -49,24 +42,27 @@ use Keyman\Site\Common\ImageRandomizer;
           </div>
           <div id="KeymanWebControl" class="hidden"></div>
         </div>
-        <!-- Keyboard Dropdown selection -->
-        <button type="button" class="btn btn-secondary" id="keyboardSelectionButton">
-          <i class="fa-solid fa-caret-right fa-xs" id="kbCount"></i>
-        </button>
-          <div class="keyboard-selection-menu">
-            <div class="keyboard-selection" id="keyboardSelection">
-              <div class="kb-item-header">
-                Keyboard Selection menu
+        <!-- Keyboard Container Dropdown menu -->
+          <div class="keyboard-container-dropdown-menu" id="keyboardContainerMenu">
+            <div class="default-us-kb">
+              <div class="kb-item-keyboard" data-id="basic_kbdus">
+                <span class="kb-chip-name">US Basic</span>
               </div>
-              <div class="kb-item-keyboard">
-                <p>Open Search to get your keyboard</p>
-              </div>
-              <div class="kb-item-footer">
-                US Basic Keyboard
-              </div>
-              <!-- kmwHeader.js -->
             </div>
-        </div>
+            <!-- Visible Keyboard Container -->
+            <div class="keyboard-container-visible" id="keyboardContainerVisible">
+            
+            </div>
+            <!-- Overflow Keyboard Container -->
+             <div class="dropdown keyboard-container-overflow">
+              <button type="button" class="btn" id="keyboardOverflowBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                <i class="fa-solid fa-caret-down"></i>
+              </button>
+              <div id="keyboardOverflowSelection" class="dropdown-menu keyboard-overflow-selection">
+
+              </div>
+            </div>
+          </div>
       </div>
       <div class='right-header'>
         <!-- Tools: Font side slider + Hide/Show keyboard -->
@@ -93,84 +89,137 @@ use Keyman\Site\Common\ImageRandomizer;
         </div>
         <!-- Dropdown Menu -->
         <div class="dropdown" id="burgerMenu">
-          <button class="btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+          <button class="btn burger-trigger" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
             <i class="fa-solid fa-bars"></i>
           </button>
-            <div class="dropdown-menu" id="burgerDropDownMenu">
-              <div class="hamburger-menu-container">
-                <div class="burger-menu-top-section">
-                  <div class="instruction-status">
-                    <div class="title">
-                      <p>Instruction</p>
-                    </div>
-                    <div class="status">
-                      <button class="btn" id="toggleSearchInstructionBtn"></button>
-                    </div>
+          <div class="dropdown-menu" id="burgerDropDownMenu">
+            <div class="menu-wrapper">
+              <!-- Instruction -->
+              <section class="menu-section" id="getStartedBtn">
+                <div class="menu-card primary-card"> 
+                  <div class="menu-card-icon">
+                    <i class="fa-solid fa-circle-info"></i>
+                  </div>
+                  <div class="menu-card-content">
+                    <h4>Get Started</h4>
+                  </div>
+                  <div class="menu-card-arrow">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </div>
                 </div>
-                <div class="burger-menu-middle-section">
-                  <ul class="burger-menu-external-links">
-                    <li class="external-links-item">
-                      <a href="https://help.keyman.com/keyboard/" target="_blank" id="kbHelpdocLink">
-                        <i class="fa-solid fa-question"></i>Keyboard Help
-                        <p>Access the keyboard help documentation for key strokes, description, and information of <span id="kbHelpDocSpan">the selected keyboard</span>.</p>
-                      </a>
-                    </li>
-                    <li class="external-links-item">
-                      <a href="https://keyman.com/developer/keymanweb/" target="_blank" id="keymanWebDeveloper">
-                        <i class="fa-solid fa-code"></i>Website Plugin
-                        <p>KeymanWeb can be added to your website with just a few lines of code.</p>
-                      </a>
-                    </li>
-                    <li class="external-links-item">
-                      <a href="https://keyman.com/" target="_blank" id="keymanSite">
-                        <img src="<?php echo cdn('img/keymanweb-mini-logo-88.png') ?>"></img>Keyman
-                        <p>Visit Keyman . Keyman is completely free to use on all devices!</p>
-                      </a>
-                    </li>
-                    <li class="external-links-item">
-                      <a href="https://help.keyman.com/" target="_blank" id="helpKeymanSite">
-                        <img src="<?php echo cdn('img/keymanweb-mini-logo-88.png') ?>"></img>KeymanHelp
-                        <p>Get help on Keyman Products, all keyboard documentation and development area.</p>
-                      </a>
-                    </li>
-                    <li class="external-links-item">
-                      <a href="https://keyman.com/bookmarklet/" target="_blank" id="bookMarklet">
-                        <i class="fa-solid fa-book-bookmark"></i>Bookmarklet
-                        <p>The KeymanWeb bookmarklet allows you to use a KeymanWeb keyboard on nearly any web page just by clicking the KeymanWeb bookmark.</p>
-                      </a>
-                    </li>
-                    <li class="external-links-item" >
-                      <a href="https://software.sil.org/language-software-privacy-policy/" target="_blank" id="privacyPolicy">
-                      <i class="fa-solid fa-shield-halved"></i>Privacy policy
-                      <p>Summer Institute of Linguistics, Inc. (dba SIL International) produces and publishes apps in many languages of the world.</p>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="burger-menu-bottom-section">
-                  <div class="kmw-socials">
-                    <h5>Keep in touch</h5>
-                    <div class="kmw-socials-icons">
-                      <a href="https://facebook.com/KeymanApp" target="_blank" data-icon="">Facebook</a>
-                      <a href="https://twitter.com/keyman" target="_blank" data-icon="">X/Twitter</a>
-                      <a href="https://typo.social/@keyman" target="_blank" data-icon="">Mastodon</a>
-                      <a href="https://www.youtube.com/@KeymanApp" target="_blank" data-icon="">YouTube</a>
-                      <a href="https://blog.keyman.com/" target="_blank" data-icon="">Keyman Blog</a>
-                      <a href="https://github.com/keymanapp" target="_blank" data-icon="">GitHub</a>
-                      <a href="https://community.software.sil.org/c/keyman" target="_blank" data-icon=" ">Keyman Community</a>
+              </section>
+              <!-- Keyboard Usage: Download, Bookmarklet, KeymanWeb.com development -->
+              <section class="menu-section">
+                <p class="menu-section-title" id="adsGuide">More ways to use the keyboard</p>
+                <div class="menu-card-group">
+                  <a href="https://keyman.com/" target="_blank" id="downloadKb" class="menu-card">
+                    <div class="menu-card-icon">
+                      <i class="fa-solid fa-mobile-screen"></i>
                     </div>
-                  </div>
-                  <div class="sil-logo">
-                    <img id="sil-logo" src="<?php echo ImageRandomizer::randomizer(); ?>" width="30%" alt='SIL Logos'/>
+                    <div class="menu-card-content">
+                      <h4>Use on current device</h4>
+                      <p id="getKbGuide">Get this keyboard for your device. Keyman is completely free to use on all devices!</p>
+                    </div>
+                    <div class="menu-card-arrow">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                  </a>
+                  <a href="https://keyman.com/bookmarklet/" target="_blank"class="menu-card">
+                    <div class="menu-card-icon">
+                      <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <div class="menu-card-content">
+                      <h4>Use in browser</h4>
+                      <p>The KeymanWeb bookmarklet allows you to use a KeymanWeb keyboard on nearly any web page.</p>
+                    </div>
+                    <div class="menu-card-arrow">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                  </a>
+                  <a href="https://keyman.com/developer/keymanweb/" target="_blank" class="menu-card">
+                    <div class="menu-card-icon">
+                      <i class="fa-solid fa-code"></i>
+                    </div>
+                    <div class="menu-card-content">
+                      <h4>Integrate into website</h4>
+                      <p>KeymanWeb can be added to your website with just a few lines of code.</p>
+                    </div>
+                    <div class="menu-card-arrow">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                  </a>
+                </div>
+              </section>
+              <!-- Documentation: Help.Keyman, Keyboard help -->
+              <section class="menu-section">
+                <p class="menu-section-title">Documentation</p>
+                <div class="menu-card-group">
+                  <a href="https://help.keyman.com/" target="_blank" class="menu-card">
+                    <div class="menu-card-icon menu-card-icon-keyman">
+                      <img src="<?php echo cdn('img/keymanweb-mini-logo-88.png') ?>" alt="Keyman">
+                    </div>
+                    <div class="menu-card-content">
+                      <h4>Keyman help</h4>
+                      <p>Get help on Keyman Products, all keyboard documentation, and development area.</p>
+                    </div>
+                    <div class="menu-card-arrow">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                  </a>
+                  <a href="https://help.keyman.com/keyboard/" target="_blank" id="kbHelpdocLink" class="menu-card">
+                    <div class="menu-card-icon">
+                      <i class="fa-solid fa-question"></i>
+                    </div>
+
+                    <div class="menu-card-content">
+                      <h4 id="kbHelpGuide">The Keyboard help</h4>
+                      <p>Access the keyboard help documentation for keystrokes, descriptions, and information of <span id="kbHelpDocSpan">the selected keyboard</span>.</p>
+                    </div>
+                    <div class="menu-card-arrow">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                  </a>
+                </div>
+              </section>
+              <!-- Footer: Social platforms, SIL Logo, KeymanWeb.com Version, Privacy Policy -->
+              <footer class="menu-footer">
+                <div class="menu-socials">
+                  <a href="https://facebook.com/KeymanApp" target="_blank" data-toggle="tooltip">
+                    <i class="fa-brands fa-facebook-f"></i>
+                  </a>
+                  <a href="https://twitter.com/keyman" target="_blank" data-toggle="tooltip">
+                    <i class="fa-brands fa-x-twitter"></i>
+                  </a>
+                  <a href="https://typo.social/@keyman" target="_blank" data-toggle="tooltip">
+                    <i class="fa-brands fa-mastodon"></i>
+                  </a>
+                  <a href="https://www.youtube.com/@KeymanApp" target="_blank" data-toggle="tooltip">
+                    <i class="fa-brands fa-youtube"></i>
+                  </a>
+                  <a href="https://blog.keyman.com/" target="_blank" data-toggle="tooltip">
+                    <i class="fa-solid fa-rss"></i>
+                  </a>
+                  <a href="https://github.com/keymanapp" target="_blank" data-toggle="tooltip">
+                    <i class="fa-brands fa-github"></i>
+                  </a>
+                  <a href="https://community.software.sil.org/c/keyman" target="_blank" data-toggle="tooltip">
+                    <i class="fa-solid fa-comments"></i>
+                  </a>
+                </div>
+                <div class="menu-sil">
+                  <a href="https://software.sil.org/">
+                    <img id="sil-logo" src="<?php echo ImageRandomizer::randomizer(); ?>" alt="SIL Logo">
                     <p>Created by SIL Global</p>
-                  </div>
-                  <div class="kmw-version">
-                    <p>KeymanWeb version <?= $VersionWithTag ?></p>
-                  </div>
+                  </a>
                 </div>
-              </div>
+                <div class="menu-version">
+                  <p>KeymanWeb version <?= $VersionWithTag ?></p>
+                  <span>|</span>
+                  <a href="https://software.sil.org/language-software-privacy-policy/" target="_blank">Privacy & Policy</a>
+                </div>
+              </footer>
             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -202,7 +251,94 @@ use Keyman\Site\Common\ImageRandomizer;
     </div>
   </section>
 
-<?php
+  <div class="instruction-modal-overlay hidden" id="instructionModalOverlay">
+    <div class="instruction-modal" id="instructionModal">
+      <!-- Header -->
+      <div class="instruction-modal-header">
+        <h2 class="instruction-modal-title">
+          Instruction
+        </h2>
+      </div>
 
-require_once('inc/foot.php');
-?>
+      <!-- Body -->
+      <div class="instruction-modal-body">
+
+        <!-- Card 1 -->
+        <div class="instruction-card instruction-card-search">
+
+          <div class="instruction-card-heading">
+            <h3>Search a keyboard</h3>
+          </div>
+
+          <div class="instruction-card-graphic">
+            <img 
+              src="<?php echo cdn('img/instruction/instruction_card_1.png') ?>"
+              alt="Pick Keyboard"
+            >
+          </div>
+          <div class="instruction-card-divider">
+          </div>
+          <div class="instruction-card-description">
+            <p>
+              Type the language, keyboard name.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Card 2 -->
+        <div class="instruction-card instruction-card-pick">
+
+          <div class="instruction-card-heading">
+            <h3>Pick a keyboard</h3>
+          </div>
+
+          <div class="instruction-card-graphic">
+            <img 
+              src="<?php echo cdn('img/instruction/instruction_card_2.png') ?>"
+              alt="Pick Keyboard"
+            >
+          </div>
+
+          <div class="instruction-card-divider"></div>
+
+          <div class="instruction-card-description">
+            <p>
+              Click on the name of the keyboard to enable and store it in the keyboard selection menu
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Card 3 -->
+        <div class="instruction-card instruction-card-type">
+
+          <div class="instruction-card-heading">
+            <h3>Start typing</h3>
+          </div>
+
+          <div class="instruction-card-graphic">
+            <img 
+              src="<?php echo cdn('img/instruction/instruction_card_3.png') ?>" 
+              alt="Start Typing"
+            >
+          </div>
+
+          <div class="instruction-card-divider"></div>
+
+          <div class="instruction-card-description">
+            <p>
+              Type with the enabled keyboard.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- Footer -->
+      <div class="instruction-modal-footer">
+        <button class="instruction-modal-btn" id="instructionModalCloseBtn">Close</button>
+        <a href="https://help.keyman.com/" target="_blank" class="instruction-modal-btn" id="instructionModalHelpBtn">More help</a>
+      </div>
+    </div>
+</div>

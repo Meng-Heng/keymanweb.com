@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Resize the keyboard size depending on the mouse down events
+ */
 import { keyboardResizing } from "../state/appState.js";
 import { fullScreenSize } from "./resizeTextArea.js";
 
@@ -14,7 +21,9 @@ export function mouseDownGrabber(e) {
     keyboardResizing.isResizing = true
 
     keyboardResizing.startY = e.clientY
+
     keyboardResizing.startHeightTop = prevElementOfResizer.offsetHeight
+    keyboardResizing.startWidthBottom = nextElementOfResizer.offsetWidth
     keyboardResizing.startHeightBottom = nextElementOfResizer.offsetHeight
 
     document.addEventListener('mousemove', mouseMoveGrabber)
@@ -23,9 +32,18 @@ export function mouseDownGrabber(e) {
 
 // Resizer Deactivate
 export function mouseUpGrabber() {
+    const keyboardRect = nextElementOfResizer.getBoundingClientRect()
+    const textareaRect = prevElementOfResizer.getBoundingClientRect()
+
     resizer.style.removeProperty('cursor')
     keyboardResizing.isResizing = false
+
+    keyboardResizing.startHeightTop = textareaRect.height
+    keyboardResizing.startHeightBottom = keyboardRect.height
+    keyboardResizing.startWidthBottom = keyboardRect.width
+
     document.removeEventListener('mousemove', mouseMoveGrabber)
+    document.removeEventListener('mouseup', mouseUpGrabber)
 }
 
 // Resizer In-process
@@ -37,10 +55,19 @@ export function mouseMoveGrabber(e) {
     let newTextareaHeight = keyboardResizing.startHeightTop + deltaY
     let newKeyboardHeight = keyboardResizing.startHeightBottom - deltaY
 
-    newTextareaHeight = Math.max(100, Math.min(newTextareaHeight, window.innerHeight * 0.8))
-    newKeyboardHeight = Math.max(100, Math.min(newKeyboardHeight, window.innerHeight * 0.5))
+    // Initial keyboard height = 400px
+    // Drag divider UP 100px:
+    // deltaY = -100
+    // newKeyboardHeight = 400 - (-100) = 500px
 
-    applyTextareaHeight(newTextareaHeight)
+    newTextareaHeight = Math.max(100, Math.min(newTextareaHeight, window.innerHeight))
+    newKeyboardHeight = Math.max(keyboardResizing.minKeyboardHeight, Math.min(newKeyboardHeight, keyboardResizing.maxKeyboardHeight))
+
+    let newKeyboardWidth = keyboardResizing.startWidthBottom - deltaY
+    newKeyboardWidth = Math.max(keyboardResizing.minKeyboardWidth, Math.min(newKeyboardWidth, keyboardResizing.maxKeyboardWidth))
+
+    applyWidths(newKeyboardWidth)
+    applyHeights(newTextareaHeight, newKeyboardHeight)
     
     if (newTextareaHeight > 700) {
         fullScreenSize()
@@ -52,10 +79,16 @@ export function mouseMoveGrabber(e) {
 // Apply heights for two elements
 export function applyHeights(taHeight, kbHeight) {
     prevElementOfResizer.style.height = `${taHeight}px`
-    // nextElementOfResizer.style.height = `${kbHeight}px`
+    nextElementOfResizer.style.height = `${kbHeight}px`
 }
 
 // Apply heights 
-export function applyTextareaHeight(taHeight) {
-    prevElementOfResizer.style.height = `${taHeight}px`
+export function applyWidths(kbWidth) {
+    nextElementOfResizer.style.width = `${kbWidth}px`
+}
+
+function calcHeight(kbHeight) {
+    const aspectRatio = 1.8
+
+    return kbHeight * aspectRatio
 }

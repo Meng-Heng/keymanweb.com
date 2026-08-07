@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Instruction in the Hamburger menu
+ */
 $(document).ready(function() {
     let searchInstructionIsON = true
     $('#toggleSearchInstructionBtn').addClass('btn-primary').text('Visible')

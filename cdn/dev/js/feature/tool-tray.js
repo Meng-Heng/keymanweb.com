@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-05
+ * 
+ * Element and interaction for the tool tray for every screen
+ */
 const tabletToolElements = `
             <div class="tool-menu dropdown">
             <button class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">Tools</button>

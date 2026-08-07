@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-05
+ * 
+ * element and interaction for the eraser tool
+ */
 export function eraserTool() {
     const eraseDiv = document.querySelector('#eraseTool')
     const eraseBtn = eraseDiv.children[0]

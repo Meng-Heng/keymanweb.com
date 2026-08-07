@@ -1,13 +1,28 @@
 /*
-    === Keyboard Execution ===
-*/
-import { getKeyboard, setKeyboard } from "./handleKeyboardData.js";
-import { highlightKbSelected } from "../feature/kb-selection-menu.js";
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-06-30
+ * 
+ * Get the necessary data for keyboard and example to load
+ */
+import { getKeyboard, setKeyboard } from "./keyboardDataPackage.js";
+import { highlightKbContainer } from "../feature/kb-container.js";
+import { selectedKbList } from "../state/appState.js";
 
 const textArea = document.getElementById('textArea')
 const keymanExample = document.getElementById("example")
 const exampleBox = document.getElementById("exampleBox")
 let langExamples = [];
+
+export function firstKbToType(kbInContainer) {
+    let firstKbFromList = kbInContainer[0]
+
+    const kbdName = firstKbFromList["name"]
+    const kbdId = firstKbFromList["id"]
+    const kbdLang = Object.keys(firstKbFromList.supportedLanguage)[0]
+
+    setKeyboard(kbdId, kbdName, kbdLang)
+}
 
 // Change and type keyboard
 export async function setKeyboardToType() {
@@ -20,7 +35,7 @@ export async function setKeyboardToType() {
     
     if(kbdName) {
         textArea.placeholder = `The ${kbdName} keyboard is selected. Start typing...`
-        searchInput.placeholder = "Selected: " + kbdName + " keyboard"
+        searchInput.placeholder = "Current keyboard: " + kbdName
     }
 
     location.replace(`${langTag},${kbTag}`)
@@ -35,7 +50,7 @@ export async function setKeyboardToType() {
     
     // Update Example of enable the keyboard
     updateExample(kbdId)
-    highlightKbSelected(kbdId)
+    highlightKbContainer(kbdId)
     if(typeof(KeyboardChange_EmbedFonts) != 'undefined') KeyboardChange_EmbedFonts(kbdId)
 }
 
@@ -76,7 +91,7 @@ async function updateExample(kbdId) {
     }
 }
 
-// Apply classes to instructional keyboards
+// Apply classes to instructional keyboards; keyboard layout that doesn't have mapped keys.
 function applyClassToKb() {
     const kbArea = document.querySelector('.keyboard-area')
     if (!kbArea) return

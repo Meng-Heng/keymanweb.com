@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Set size for the Textarea and Keyboard
+ */
 import { textAreaState } from "../state/appState.js"
 
 const divider = document.querySelector('.divider-container')

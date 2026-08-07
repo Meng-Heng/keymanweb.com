@@ -1,12 +1,19 @@
-// UI for Search
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-06-26
+ * 
+ * Element and interactions for Search
+ */
 import { searchState, selectedKbList } from "../state/appState.js";
 import { highlightSearchContext, truncateDesc, getMarkedContext, showMarkedContext } from "../operation/searchCardContent.js";
-import { addKbToSelectionMenu } from "./kb-selection-menu.js";
-import { platformSupport } from "../operation/platformSupport.js";
+import { kbContainerUI, reorderSelectedKbList } from "./kb-container.js";
 import { validateURL } from "../operation/validURL.js";
 import { setKeyboardToType } from "../operation/keyboard.js";
-import { setKbHelpDocHamburger } from "../operation/selectedKb.js";
-import { loadPageInfo } from "./pagination.js";
+import { setKbHelpDocHamburger } from "../operation/hamburgerMenu.js";
+import { getTotalPage } from "./pagination.js";
+import { storeInKbContainer, kbDataForKbContainer } from "../operation/keyboardContainer.js";
+import { setKeyboard } from "../operation/keyboardDataPackage.js";
 
 /* Search */
 const kbSearchCard = document.getElementById('kbSearchCardUI')
@@ -14,67 +21,66 @@ const searchResultCount = document.getElementById('resultCount')
 const paginationCtrl = document.getElementById('paginationControls')
 const magnifying = document.querySelector('#magnifyingGlassIcon')
 
-export function updateSearchIcon(value) {
-    // Base on the value given, it will display one of the icon below
-    magnifying.style.display = value ? 'none' : 'inline'
-    clearSearchIcon.style.display = value ? 'inline' : 'none'
+// Search icon changes depending on the value
+export function updateSearchIcon(searchQuery) {
+    // Base on the value given, it will display one of the icons below
+    magnifying.style.display = searchQuery ? 'none' : 'inline'
+    clearSearchIcon.style.display = searchQuery ? 'inline' : 'none'
 }
 
-/* Display items return from search */
-export function displaySearch(keyboards, total = 0, query = '') {
-    const searchInstruction = document.querySelector('.search-instruction')
-    const kbHrTitle = document.querySelector('.keyboard-title')
-
+/* 
+    Only called when there is a query search
+    Display items return from search
+*/
+export function displaySearch(listOfKbData, amountOfKb = 0, searchQuery = '') {
+    // Ensure Keyboard Search UI is empty
     kbSearchCard.innerHTML = '';
 
+    const kbHrTitle = document.querySelector('.keyboard-title')
     // Validate the keyboards data
-    if (!keyboards || keyboards.length == 0) {
-        kbSearchCard.innerHTML = `<span class="loading">Well, no keyboards found for ${query}.</span>`
-        searchInstruction.classList.add("hidden")
+    if (!listOfKbData || listOfKbData.length == 0) {
+        kbSearchCard.innerHTML = `<span class="loading">No keyboards found for ${searchQuery}.</span>`
         kbHrTitle.textContent = "Results"
         paginationCtrl.style.display = 'none'
         return
     }
     
-    if (total) {
-        searchResultCount.innerHTML = `${total} results`
+    if (amountOfKb) {
+        searchResultCount.innerHTML = `${amountOfKb} results`
         searchResultCount.classList.remove('hidden')
     }
     
     // Getting searched Word ready for highlight
-    const marked = getMarkedContext(query)
+    const markedSearchText = getMarkedContext(searchQuery)
 
-    if (!query) {
+    if (!searchQuery) {
         // Most Download UI
-        searchInstruction.classList.remove("hidden")
         kbHrTitle.textContent = "Most Downloads"
         paginationCtrl.style.display = 'none'
-    } else if (total < 2) {
+    } else if (amountOfKb < 2) {
         // Total results < 2 UI
-        searchInstruction.classList.add("hidden")
         kbHrTitle.textContent = "Results"
         paginationCtrl.style.display = 'none'
     } else {
         // Result of search query
-        searchInstruction.classList.add("hidden")
         kbHrTitle.textContent = "Results"
         paginationCtrl.style.display = 'flex'
     }
 
-    // UI for each keyboards
-    keyboards.forEach(kb => {
-        const card = searchKbCardUI(kb, marked, selectedKbList, keyboards)
+    // Display each keyboards into the card UI
+    listOfKbData.forEach(eachKb => {
+        const card = searchMenu(eachKb, markedSearchText, selectedKbList, listOfKbData)
         kbSearchCard.appendChild(card)
     })
 }
 
 // Search card UI
-function searchKbCardUI(kb, marked = '', selectedKbList, data) {
+function searchMenu(eachKb, markedSearchText = '', selectedKbList, listOfKbData) {
     const searchInput = document.querySelector('#searchInput')
     const searchDropdown = new bootstrap.Dropdown(searchInput)
     const textArea = document.querySelector('#textArea')
 
-    const kbFoundInList = selectedKbList.some(selected => selected.id == kb.id) // find a match between the keyboard from selection menu & search
+    const kbFoundInList = selectedKbList.some(selected => selected.id == eachKb.id) // find a match between the keyboard from selection menu & search
     // Keyboard card container
     let cardWrap = document.createElement('div')
     cardWrap.classList.add('card-wrap')
@@ -84,97 +90,116 @@ function searchKbCardUI(kb, marked = '', selectedKbList, data) {
     let cardHeader = document.createElement('div')
     cardHeader.classList.add('card-header')
 
-    const {matchFound, matchField, matchValue} = highlightSearchContext(kb, marked) // Highlight search query
+    const {matchFound, matchField, matchValue} = highlightSearchContext(eachKb, markedSearchText) // Highlight search query
 
-    const kbNameHeading = matchFound ? showMarkedContext(kb, matchField, matchValue) // Highlight search query UI
+    const kbNameHeading = matchFound ? showMarkedContext(eachKb, matchField, matchValue) // Highlight search query UI
     : (() => {
         const heading = document.createElement('h4')
-        heading.innerHTML = kb.name
+        heading.innerHTML = eachKb.name
         return heading
     })()
-    
-    // Keyboard Plus (+) icon
-    const kbIconPTag = document.createElement('p')
-    kbIconPTag.textContent = kbFoundInList ? "-" : "+"
-    kbIconPTag.style.fontSize = '20px'
-    kbIconPTag.style.cursor = 'pointer'
-    kbIconPTag.classList.add('kb-icon-plus')
 
     // Keyboard Help (?) icon
-    const kbHelpIconSpan = document.createElement('span')
-    kbHelpIconSpan.classList.add('help-icon-span')
+    const kbIconDiv = document.createElement('div')
+    kbIconDiv.classList.add('card-header-icon')
+
     const kbHelpIcon = document.createElement('i')
     kbHelpIcon.classList.add('fa-solid', 'fa-question')
-    kbHelpIconSpan.appendChild(kbHelpIcon)
+    kbHelpIcon.setAttribute('id', 'kbHelpIcon')
+    kbIconDiv.appendChild(kbHelpIcon)
 
+    const kbDownloadIcon = document.createElement('i')
+    kbDownloadIcon.classList.add('fa-solid', 'fa-download')
+    kbDownloadIcon.setAttribute('id', 'kbDownloadIcon')
+    kbIconDiv.appendChild(kbDownloadIcon)
+
+    // Keyboard Header
     const kbHeaderTitle = document.createElement('div')
     kbHeaderTitle.classList.add('card-header-title')
 
-    // Must check if the keyboard is in the selection menu
-    checkKbCardUI(kbIconPTag, cardHeader, kb)
+    const kbSubHeader = document.createElement('div')
+    kbSubHeader.classList.add('card-sub-header')
 
     // Keyboard ID
     const kbIdPTag = document.createElement('p')
     kbIdPTag.classList.add('keyboard-id')
-    kbIdPTag.textContent = kb.id
+    kbIdPTag.textContent = eachKb.id
 
-    // Keyboard Description
-    const kbDescHeading = truncateDesc(kb, matchField, marked)
+    // Dot for spacing
+    const kbDot = document.createElement('div')
+    kbDot.classList.add('dot-spacing')
 
-    // Keyboard monthly downloads and platform support
-    const kbSpecs = document.createElement('div')
-    kbSpecs.classList.add('keyboard-specs')
-
-    const kbDownloadHeading = document.createElement('h6')
-    kbDownloadHeading.textContent = `${kb.match.downloads} monthly downloads`
+    // Keyboard Monthly Downloads
+    const kbDownloadHeading = document.createElement('p')
+    kbDownloadHeading.textContent = `${eachKb.match.downloads} monthly downloads`
     kbDownloadHeading.classList.add('monthly-download')
 
-    const kbPlatformSupport = document.createElement('div')
-    kbPlatformSupport.classList.add('platform')
-    kbPlatformSupport.innerHTML = platformSupport(kb.platformSupport) // Get icons for platform
+    // Keyboard Description
+    const kbDescHeading = truncateDesc(eachKb, matchField, markedSearchText)
+
+    // Keyboard Selection Indicator
+    const kbSelectionIndic = document.createElement('div')
+    kbSelectionIndic.classList.add('selection-indicator')
+
+    const kbTickIcon = document.createElement('i')
+    kbTickIcon.classList.add('fa-solid', 'fa-check')
+
+    kbSelectionIndic.appendChild(kbTickIcon)
 
     // Append children
-    kbHeaderTitle.appendChild(kbIconPTag)
     kbHeaderTitle.appendChild(kbNameHeading)
     cardHeader.appendChild(kbHeaderTitle)
-    cardHeader.appendChild(kbHelpIconSpan)
+    cardHeader.appendChild(kbIconDiv)
 
-    kbSpecs.appendChild(kbDownloadHeading)
-    kbSpecs.appendChild(kbPlatformSupport)
+    kbSubHeader.appendChild(kbIdPTag)
+    kbSubHeader.appendChild(kbDot)
+    kbSubHeader.appendChild(kbDownloadHeading)
 
     cardWrap.appendChild(cardHeader)
-    cardWrap.appendChild(kbIdPTag)
+    cardWrap.appendChild(kbSubHeader)
     cardWrap.appendChild(kbDescHeading)
-    cardWrap.appendChild(kbSpecs)
+    cardWrap.appendChild(kbSelectionIndic)
 
+    // Must check if the keyboard is in the selection menu
+    checkSearchCardStatus([cardWrap, kbSelectionIndic], eachKb)
+    
     // Click on a keyboard name to enable the keyboard & add it into selection menu
-    kbHeaderTitle.onclick = (e) => {
-        e.stopPropagation()
-        addKbToSelectionMenu(kbIconPTag, cardHeader, kb, data)
+    cardWrap.onclick = () => {
+        const langCode = Object.keys(eachKb.languages)[0] || "en"
+        storeInKbContainer(cardHeader, eachKb, listOfKbData)
+        setKbHelpDocHamburger(eachKb.id, eachKb.name)
+        setKeyboard(eachKb.id, langCode, eachKb.name)
+        reorderSelectedKbList(eachKb.id)
         setKeyboardToType()
-        setKbHelpDocHamburger(kb.id, kb.name)
-        searchDropdown.hide()
-        textArea.focus()
+        // Must check if the keyboard is in the selection menu
+        checkSearchCardStatus([cardWrap, kbSelectionIndic], eachKb)
     }
 
     // Click on the help icon on the search card to get to the keyboard help documentation
-    kbHelpIcon.addEventListener('click', () => {
+    kbHelpIcon.addEventListener('click', (e) => {
+        e.stopPropagation()
         const checkedURL = validateURL(`https://help.keyman.com/keyboard/`)
-        const newURL = checkedURL + kb.id
+        const newURL = checkedURL + eachKb.id
+        window.open(newURL, '_blank')
+    })
+
+    kbDownloadIcon.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const checkedURL = validateURL(`https://keyman.com/keyboards/install/`)
+        const newURL = checkedURL + eachKb.id
         window.open(newURL, '_blank')
     })
 
     return cardWrap
 }
 
-// Disable or Enable UI with opacity
-export function checkKbCardUI(kbIconPTag, element, kb) {
-    // For checking if the keyboard exists in to respond to UI
+// Disable or Enable Search UI
+export function checkSearchCardStatus(elements, kb) {
     let kbFoundInList = selectedKbList.some(selected => selected.id == kb.id)
-    
-    if (kbFoundInList) {
-        element.style.opacity = '50%'
-    } else {
-        element.style.opacity = '100%'
-    }
+    const selectIndicator = document.querySelector('.selection-indicator')
+    const kbCardWrap = document.querySelector('.card-wrap')
+
+    Object.values(elements).forEach(ele => {
+        ele?.classList.toggle('selected', kbFoundInList)
+    })
 }

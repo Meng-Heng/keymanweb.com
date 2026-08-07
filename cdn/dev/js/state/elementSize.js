@@ -1,3 +1,10 @@
+/*
+ * Keyman is copyright (C) SIL Global. MIT License.
+ * 
+ * Created by MengHeng Hav on 2026-08-07
+ * 
+ * Save and restore the element size for rememberState
+*/
 export function getElementsSize(element) {
     const rect = element.getBoundingClientRect()
     return {
